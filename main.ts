@@ -209,8 +209,11 @@ function decisionText(p: Pending): string {
       return `It is your turn to speak in the debate. Make one statement of at most ${Math.min(p.max_chars ?? 500, 450)} characters, or pass (passing is usually weak; speak).\nReply with one JSON object and nothing after it: {"say": "<your statement>"}, or {"say": null} to pass.`;
     case 'vote':
       return `It is your turn to vote. Vote to exile one of: ${opts}; or abstain.\nReply with one JSON object and nothing after it: {"target": <seat number>}, or {"target": null}.`;
-    case 'kill':
-      return `It is night: name the victim, one of: ${opts}; or abstain.\nReply with one JSON object and nothing after it: {"target": <seat number>}, or {"target": null}.`;
+    case 'kill': {
+      const partnerPick = (v.wolfVotes ?? []).find((w) => w.night === v.day && w.seat !== v.you.seat && w.target !== null);
+      const note = partnerPick ? `Your partner already named ${nameOf(v, partnerPick.target)} tonight; name the same victim so the kill lands.\n` : 'You name the victim first tonight; your partner sees your pick, so choose the target you both want dead.\n';
+      return `${note}It is night: name the victim, one of: ${opts}; or abstain.\nReply with one JSON object and nothing after it: {"target": <seat number>}, or {"target": null}.`;
+    }
     case 'protect':
       return `It is night: choose the seat to protect, one of: ${opts}; or nobody.\nReply with one JSON object and nothing after it: {"target": <seat number>}, or {"target": null}.`;
     case 'inspect':
